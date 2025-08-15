@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>@tlv.wildlife — Latest 10 Photos</title>
+  <meta name="description" content="Responsive Instagram gallery that pulls the latest photos for @tlv.wildlife via Instagram Basic Display API" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --card: rgba(255,255,255,0.06);
+      --glass: rgba(255,255,255,0.08);
+      --text: #e8eef6;
+      --muted: #b8c2cf;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box }
+    html, body { height: 100% }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: radial-gradient(1000px 600px at 20% 10%, #122232 0%, transparent 60%),
+                  radial-gradient(1000px 600px at 80% 80%, #1a2a3a 0%, transparent 60%),
+                  var(--bg);
+      color: var(--text);
+      display: grid;
+      padding: 24px;
+    }
+    .container { width: min(1200px, 96vw); margin: 0 auto }
+
+    header {
+      display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: center;
+      padding: 10px 0 18px 0;
+    }
+    .brand { display: flex; align-items: center; gap: 12px }
+    .avatar { width: 42px; height: 42px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.15) }
+    .avatar img { width: 100%; height: 100%; object-fit: cover }
+    .title { font-weight: 800; letter-spacing: .2px }
+    .muted { color: var(--muted); font-size: 14px }
+
+    .cta { display: inline-flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.14); text-decoration: none; color: var(--text); background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)); transition: transform .2s ease, background .2s ease }
+    .cta:hover { transform: translateY(-1px) scale(1.01); background: rgba(255,255,255,0.1) }
+
+    .frame { border-radius: 28px; background: linear-gradient(180deg, var(--glass), rgba(255,255,255,0.02)); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 20px 80px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06); overflow: hidden; backdrop-filter: blur(8px) }
+
+    .toolbar { display: flex; gap: 10px; padding: 14px; border-bottom: 1px solid rgba(255,255,255,0.08); align-items: center; justify-content: space-between }
+    .badge { background: rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.12); color: #fff; font-size: 12px; letter-spacing: .3px; padding: 8px 10px; border-radius: 999px; display: inline-flex; align-items: center; gap: 8px }
+    .badge .dot { width: 8px; height: 8px; border-radius: 999px; background: var(--accent) }
+
+    .grid { padding: 16px; display: grid; gap: 16px; grid-template-columns: repeat(4, minmax(0, 1fr)) }
+    @media (max-width: 1100px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)) } }
+    @media (max-width: 780px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)) } }
+    @media (max-width: 520px) { .grid { grid-template-columns: 1fr } }
+
+    .card { position: relative; background: var(--card); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; overflow: hidden }
+    .media { aspect-ratio: 1/1; width: 100%; height: auto; display: block; object-fit: cover; filter: contrast(1.05) saturate(1.05) }
+    .meta { padding: 12px; display: grid; gap: 6px }
+    .caption { font-size: 14px; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden }
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 8px }
+    .pill { font-size: 12px; color: var(--muted); padding: 6px 8px; border-radius: 999px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08) }
+
+    footer { display: flex; justify-content: space-between; align-items: center; padding: 14px; border-top: 1px solid rgba(255,255,255,0.08) }
+    .note { font-size: 12px; color: var(--muted) }
+
+    dialog { background: rgba(14,20,28,.96); color: var(--text); border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; width: min(560px, 92vw); padding: 16px 16px }
+    dialog::backdrop { background: rgba(0,0,0,.6) }
+    label { font-size: 13px; color: var(--muted) }
+    input {
+      width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04); color: var(--text);
+    }
+    .rowgap { display: grid; gap: 10px }
+    .actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 12px }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="avatar"><img src="https://images.unsplash.com/photo-1518791841217-8f162f1e1131?q=80&w=480&auto=format&fit=crop" alt="@tlv.wildlife avatar"></div>
+        <div>
+          <div class="title">@tlv.wildlife</div>
+          <div class="muted">Latest 10 posts gallery</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center">
+        <a class="cta" href="https://www.instagram.com/tlv.wildlife/" target="_blank" rel="noopener">Open Instagram</a>
+        <button class="cta" id="connectBtn" type="button">Connect Instagram</button>
+      </div>
+    </header>
+
+    <div class="frame">
+      <div class="toolbar">
+        <span class="badge"><span class="dot"></span> Live feed</span>
+        <div class="muted">Tip  Use the Connect button to paste your Instagram Basic Display access token  Nothing is sent anywhere  It is stored locally in your browser</div>
+      </div>
+      <div id="grid" class="grid" aria-live="polite"></div>
+      <footer>
+        <div class="note">Query params supported  count  Defaults to 10  Example  ?count=12</div>
+        <a class="cta" href="#" onclick="downloadHTML(event)">Download this page</a>
+      </footer>
+    </div>
+  </div>
+
+  <dialog id="authDialog">
+    <form method="dialog" class="rowgap" id="authForm">
+      <h3 style="margin:0 0 4px 0">Connect Instagram</h3>
+      <p class="muted" style="margin:0 0 8px 0">Paste a long lived Basic Display access token  If your account owns the token this page can load your media directly with the token  Learn more in the Instagram Basic Display documentation</p>
+      <label>Access Token</label>
+      <input id="tokenInput" type="password" placeholder="IGQVJ..." autocomplete="off" />
+      <label>Limit</label>
+      <input id="limitInput" type="number" min="1" max="50" value="10" />
+      <div class="actions">
+        <button class="cta" value="cancel">Cancel</button>
+        <button class="cta" value="save">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    const grid = document.getElementById('grid')
+    const connectBtn = document.getElementById('connectBtn')
+    const dlg = document.getElementById('authDialog')
+    const tokenKey = 'ig_token_tlv_wildlife'
+
+    const params = new URLSearchParams(location.search)
+    const countParam = Math.min(50, Math.max(1, Number(params.get('count')) || 10))
+
+    connectBtn.addEventListener('click', () => {
+      const cur = localStorage.getItem(tokenKey) || ''
+      document.getElementById('tokenInput').value = cur
+      document.getElementById('limitInput').value = countParam
+      dlg.showModal()
+    })
+
+    dlg.addEventListener('close', () => {
+      if (dlg.returnValue === 'save') {
+        const token = document.getElementById('tokenInput').value.trim()
+        const limit = Math.min(50, Math.max(1, Number(document.getElementById('limitInput').value) || 10))
+        if (token) localStorage.setItem(tokenKey, token)
+        loadMedia(limit)
+      }
+    })
+
+    function placeholderUI(msg = 'Connect Instagram to load your photos'){
+      grid.innerHTML = ''
+      for (let i=0;i<6;i++) {
+        const sk = document.createElement('div')
+        sk.className = 'card'
+        sk.innerHTML = `<div class="media" style="background:rgba(255,255,255,0.04)"></div>
+          <div class="meta"><div class="caption">${msg}</div><div class="row"><span class="pill">Waiting</span><span class="pill">—</span></div></div>`
+        grid.appendChild(sk)
+      }
+    }
+
+    async function loadMedia(limit=countParam){
+      const token = localStorage.getItem(tokenKey)
+      if (!token) { placeholderUI(); return }
+      placeholderUI('Loading')
+      try {
+        const url = new URL('https://graph.instagram.com/me/media')
+        url.searchParams.set('fields','id,caption,media_url,permalink,thumbnail_url,media_type,timestamp,username')
+        url.searchParams.set('access_token', token)
+        url.searchParams.set('limit', String(limit))
+        const res = await fetch(url)
+        if (!res.ok) throw new Error('Instagram API error ' + res.status)
+        const data = await res.json()
+        const items = Array.isArray(data.data) ? data.data : []
+        render(items)
+      } catch (err){
+        console.error(err)
+        placeholderUI('Could not load media  Check token or CORS  For production use a tiny proxy to keep the token server side')
+      }
+    }
+
+    function render(items){
+      grid.innerHTML = ''
+      if (!items.length){ placeholderUI('No media found'); return }
+      for (const m of items){
+        const isVideo = m.media_type === 'VIDEO' || m.media_type === 'CAROUSEL_ALBUM'
+        const src = m.media_type === 'VIDEO' ? (m.thumbnail_url || m.media_url) : m.media_url
+        const el = document.createElement('article')
+        el.className = 'card'
+        el.innerHTML = `
+          <a href="${m.permalink}" target="_blank" rel="noopener" aria-label="Open on Instagram">
+            <img class="media" loading="lazy" src="${src}" alt="${escapeHTML(m.caption || 'Instagram media')}" />
+          </a>
+          <div class="meta">
+            <div class="row">
+              <span class="pill">${new Date(m.timestamp).toLocaleDateString()}</span>
+              <span class="pill">${m.media_type.toLowerCase()}</span>
+            </div>
+            <div class="caption">${escapeHTML(m.caption || '')}</div>
+          </div>`
+        grid.appendChild(el)
+      }
+    }
+
+    function escapeHTML(str){
+      return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[s]))
+    }
+
+    function downloadHTML(e){
+      e.preventDefault()
+      const blob = new Blob([document.documentElement.outerHTML], {type: 'text/html'})
+      const a = document.createElement('a')
+      a.href = URL.createObjectURL(blob)
+      a.download = '@tlv.wildlife-latest-photos.html'
+      a.click()
+      URL.revokeObjectURL(a.href)
+    }
+
+    loadMedia(countParam)
+  </script>
+</body>
+</html>
